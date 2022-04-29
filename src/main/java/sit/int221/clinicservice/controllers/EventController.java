@@ -22,7 +22,9 @@ public class EventController {
     @GetMapping("")
     public List<EventDTO> getAllEvent(){
         return eventService.getAllEvent();
-    }@GetMapping("/{id}")
+    }
+
+    @GetMapping("/{id}")
     public EventDTO getEventById(@PathVariable Integer id){
         return eventService.getEventById(id);
     }

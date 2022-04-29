@@ -8,11 +8,11 @@
         <version>2.6.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>sit.int204</groupId>
-    <artifactId>classicmodels-service</artifactId>
+    <groupId>sit.int221</groupId>
+    <artifactId>Backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>classicmodels-service</name>
-    <description>classicmodels-service</description>
+    <name>Backend</name>
+    <description>Backend</description>
     <properties>
         <java.version>11</java.version>
     </properties>
