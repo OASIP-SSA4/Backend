@@ -20,5 +20,5 @@ public class EventDTO {
     private Instant eventStartTime;
     private String eventNotes;
     private EventCategoryDTO eventCategory;
-    private LocalTime eventDuration;
+    private Integer eventDuration;
 }

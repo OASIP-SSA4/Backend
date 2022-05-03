@@ -15,5 +15,5 @@ public class EventCategoryDTO {
     private Integer id;
     private String eventCategoryName;
     private String eventCategoryDescription;
-    private LocalTime eventDuration;
+    private Integer eventDuration;
 }
