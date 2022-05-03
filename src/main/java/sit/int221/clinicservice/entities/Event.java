@@ -30,13 +30,13 @@ public class Event {
     private EventCategory eventCategory;
 
     @Column(name = "eventDuration", nullable = false)
-    private LocalTime eventDuration;
+    private Integer eventDuration;
 
-    public LocalTime getEventDuration() {
+    public Integer getEventDuration() {
         return eventDuration;
     }
 
-    public void setEventDuration(LocalTime eventDuration) {
+    public void setEventDuration(Integer eventDuration) {
         this.eventDuration = eventDuration;
     }
 

@@ -19,7 +19,7 @@ public class EventCategory {
     private String eventCategoryDescription;
 
     @Column(name = "eventDuration", nullable = false)
-    private LocalTime eventDuration;
+    private Integer eventDuration;
 
     @OneToMany(mappedBy = "eventCategory")
     private Set<Event> events = new LinkedHashSet<>();
@@ -32,11 +32,11 @@ public class EventCategory {
         this.events = events;
     }
 
-    public LocalTime getEventDuration() {
+    public Integer getEventDuration() {
         return eventDuration;
     }
 
-    public void setEventDuration(LocalTime eventDuration) {
+    public void setEventDuration(Integer eventDuration) {
         this.eventDuration = eventDuration;
     }
 
