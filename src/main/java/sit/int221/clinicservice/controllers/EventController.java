@@ -29,11 +29,13 @@ public class EventController {
         return eventService.getEventById(id);
     }
 
+//    create
     @PostMapping("")
     public void Event (@RequestBody Event event) {
         eventService.save (event);
     }
 
+//    delete
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         eventRepository.findById(id).orElseThrow(()->
@@ -42,6 +44,7 @@ public class EventController {
         eventRepository.deleteById(id);
     }
 
+//    edit
     @PutMapping("/{id}")
     public Event update(@RequestBody Event updateEvent, @PathVariable Integer id) {
         Event event = eventRepository.findById(id)
