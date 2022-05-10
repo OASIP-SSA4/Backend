@@ -15,8 +15,10 @@ import java.util.List;
 public class EventService{
     @Autowired
     private EventRepository repository;
-    @Autowired private ModelMapper modelMapper;
-    @Autowired private ListMapper listMapper;
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private ListMapper listMapper;
 
     public Event save(EventDTO newEvent) {
         Event e = modelMapper.map(newEvent, Event.class);
@@ -35,6 +37,7 @@ public class EventService{
     private EventService(EventRepository repository){
         this.repository = repository;
     }
+
     public EventDTO getEventById(Integer id) {
         Event event = repository.findById(id)
                 .orElseThrow(()->new ResponseStatusException(
