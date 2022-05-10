@@ -8,6 +8,7 @@ import sit.int221.clinicservice.entities.EventCategory;
 
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class EventDTO {
     private Integer id;
     private String bookingName;
     private String bookingEmail;
-    private Instant eventStartTime;
+    private Date eventStartTime;
     private String eventNotes;
     private EventCategoryDTO eventCategory;
     private Integer eventDuration;

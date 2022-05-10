@@ -1,11 +1,20 @@
 package sit.int221.clinicservice.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import sit.int221.clinicservice.entities.EventCategory;
 
 import javax.persistence.*;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.Date;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "event")
 public class Event {
@@ -21,7 +30,7 @@ public class Event {
     private String bookingEmail;
 
     @Column(name = "eventStartTime", nullable = false)
-    private Instant eventStartTime;
+    private Date eventStartTime;
 
     @Column(name = "eventNotes", length = 500)
     private String eventNotes;
@@ -33,59 +42,4 @@ public class Event {
     @Column(name = "eventDuration", nullable = false)
     private Integer eventDuration;
 
-    public Integer getEventDuration() {
-        return eventDuration;
-    }
-
-    public void setEventDuration(Integer eventDuration) {
-        this.eventDuration = eventDuration;
-    }
-
-    public EventCategory getEventCategory() {
-        return eventCategory;
-    }
-
-    public void setEventCategory(EventCategory eventCategory) {
-        this.eventCategory = eventCategory;
-    }
-
-    public String getEventNotes() {
-        return eventNotes;
-    }
-
-    public void setEventNotes(String eventNotes) {
-        this.eventNotes = eventNotes;
-    }
-
-    public Instant getEventStartTime() {
-        return eventStartTime;
-    }
-
-    public void setEventStartTime(Instant eventStartTime) {
-        this.eventStartTime = eventStartTime;
-    }
-
-    public String getBookingEmail() {
-        return bookingEmail;
-    }
-
-    public void setBookingEmail(String bookingEmail) {
-        this.bookingEmail = bookingEmail;
-    }
-
-    public String getBookingName() {
-        return bookingName;
-    }
-
-    public void setBookingName(String bookingName) {
-        this.bookingName = bookingName;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 }
