@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import sit.int221.clinicservice.dtos.EditEventDTO;
 import sit.int221.clinicservice.dtos.EventDTO;
 import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.repositories.EventRepository;
@@ -29,7 +30,10 @@ public class EventService{
         List<Event> eventList = repository.findAllByOrderByEventStartTimeDesc();
         return listMapper.mapList(eventList, EventDTO.class, modelMapper);
     }
+
+//    check eamil
     public Event save(Event event) {
+
         return repository.saveAndFlush(event);
     }
 
@@ -55,4 +59,18 @@ public class EventService{
         eventDTO.setEventStartTime(event.getEventStartTime());
         return eventDTO;
     }
+
+//ทำที่controllerแล้ว
+//    public EditEventDTO updateEvent(Event updateEvent, Integer id) {
+//        Event editEvent = repository.findById(id).map(event -> {
+//            event.setEventNotes(updateEvent.getEventNotes());
+//            event.setEventStartTime(updateEvent.getEventStartTime());
+//            return event;
+//        }).orElseGet(() -> {
+//            updateEvent.setId(id);
+//            return updateEvent;
+//        });
+//        repository.saveAndFlush(editEvent);
+//        return modelMapper.map(editEvent, EditEventDTO.class);
+//    }
 }

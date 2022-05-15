@@ -22,4 +22,12 @@ public class EventDTO {
     private String eventNotes;
     private EventCategoryDTO eventCategory;
     private Integer eventDuration;
+
+//    public Date getEventStartTime() {
+//        return eventStartTime;
+//    }
+//
+//    public String getEventNotes() {
+//        return eventNotes;
+//    }
 }
