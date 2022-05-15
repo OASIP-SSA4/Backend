@@ -11,6 +11,7 @@ import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.repositories.EventRepository;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class EventService{
@@ -20,6 +21,18 @@ public class EventService{
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+//check email
+    private boolean validateEmail(String bookingEmail){
+        String pattern = "^(.+)@(\\S+).(\\S+)$";
+        return Pattern.compile(pattern).matcher(bookingEmail).matches();
+    }
+    private void checkBookingEmail(String bookingEmail) {
+        if (bookingEmail == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "bookingEmail cannot be null");
+        } else if (validateEmail(bookingEmail) == false) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong email format");
+        }
+    }
 
     public Event save(EventDTO newEvent) {
         Event e = modelMapper.map(newEvent, Event.class);
@@ -31,9 +44,8 @@ public class EventService{
         return listMapper.mapList(eventList, EventDTO.class, modelMapper);
     }
 
-//    check eamil
     public Event save(Event event) {
-
+        checkBookingEmail(event.getBookingEmail());
         return repository.saveAndFlush(event);
     }
 
