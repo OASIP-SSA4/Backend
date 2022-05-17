@@ -30,6 +30,8 @@ public class CreateEventDTO {
 
     @Size(min = 0, max = 500, message = "The note size must be between 0 and 500 characters")
     private String eventNotes;
+
+    @NotNull(message = "Event category can not null")
     private EventCategoryDTO eventCategory;
     private Integer eventDuration;
 }
