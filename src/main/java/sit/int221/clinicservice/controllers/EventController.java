@@ -2,8 +2,10 @@ package sit.int221.clinicservice.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import sit.int221.clinicservice.dtos.CreateEventDTO;
 import sit.int221.clinicservice.dtos.EditEventDTO;
 import sit.int221.clinicservice.dtos.EventDTO;
 import sit.int221.clinicservice.entities.Event;
@@ -32,8 +34,9 @@ public class EventController {
 
 //create
     @PostMapping("")
-    public void Event (@RequestBody Event event) {
-        eventService.save (event);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void Event (@Validated @RequestBody CreateEventDTO createEventDTO) {
+        eventService.save (createEventDTO);
     }
 
 //delete
@@ -44,28 +47,6 @@ public class EventController {
                         id + " does not exist !!!"));
         eventRepository.deleteById(id);
     }
-
-////edit put
-//    @PutMapping("/{id}")
-//    public Event update(@RequestBody Event updateEvent, @PathVariable Integer id) {
-//        Event event = eventRepository.findById(id)
-//                .map(o->mapEvent(o, updateEvent))
-//                .orElseGet(()-> {
-//                    updateEvent.setId(id);
-//                    return updateEvent;
-//                });
-//        return eventRepository.saveAndFlush(event);
-//    }
-//
-//    private Event mapEvent(Event existingEvent , Event updateEvent){
-//        existingEvent.setBookingEmail(updateEvent.getBookingEmail());
-//        existingEvent.setEventCategory(updateEvent.getEventCategory());
-//        existingEvent.setBookingName(updateEvent.getBookingName());
-//        existingEvent.setEventDuration(updateEvent.getEventDuration());
-//        existingEvent.setEventStartTime(updateEvent.getEventStartTime());
-//        existingEvent.setEventNotes(updateEvent.getEventNotes());
-//        return existingEvent;
-//    }
 
 //edit patch
     @PatchMapping("/{id}")

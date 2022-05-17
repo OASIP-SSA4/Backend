@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sit.int221.clinicservice.entities.EventCategory;
 
-import java.time.Instant;
-import java.time.LocalTime;
 import java.util.Date;
 
 @Getter
@@ -22,12 +19,4 @@ public class EventDTO {
     private String eventNotes;
     private EventCategoryDTO eventCategory;
     private Integer eventDuration;
-
-//    public Date getEventStartTime() {
-//        return eventStartTime;
-//    }
-//
-//    public String getEventNotes() {
-//        return eventNotes;
-//    }
 }

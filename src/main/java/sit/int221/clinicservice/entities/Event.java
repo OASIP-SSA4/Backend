@@ -41,5 +41,4 @@ public class Event {
 
     @Column(name = "eventDuration", nullable = false)
     private Integer eventDuration;
-
 }
