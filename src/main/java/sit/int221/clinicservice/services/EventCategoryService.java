@@ -2,7 +2,10 @@ package sit.int221.clinicservice.services;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import sit.int221.clinicservice.dtos.EventCategoryDTO;
 import sit.int221.clinicservice.entities.EventCategory;
 import sit.int221.clinicservice.repositories.EventCategoryRepository;
@@ -13,15 +16,28 @@ import java.util.List;
 public class EventCategoryService {
     @Autowired
     private ListMapper listMapper;
-
     @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
     private EventCategoryRepository eventCategoryRepository;
 
-    public List<EventCategoryDTO> getAllEvent() {
-        List<EventCategory> eventList = eventCategoryRepository.findAll();
-        return listMapper.mapList(eventList, EventCategoryDTO.class, modelMapper);
+    public List<EventCategoryDTO> getEventCategory() {
+        try{
+            List<EventCategory> eventList = eventCategoryRepository.findAll(Sort.by("id").descending());
+            return listMapper.mapList(eventList, EventCategoryDTO.class, modelMapper);
+        } catch (Exception ex){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบข้อมูล");
+        }
+
     }
+
+//    public List<EventCategoryDTO> getEventCategory(){
+//        try{
+//            List<EventCategory>eventCategoryList = eventCategoryRepository.findAll(Sort.by("eventCategoryId").descending());
+//            return listMapper.mapList(eventCategoryList, EventCategoryDTO.class, modelMapper);
+//        } catch (Exception ex){
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบข้อมูล");
+//        }
+//    }
 }

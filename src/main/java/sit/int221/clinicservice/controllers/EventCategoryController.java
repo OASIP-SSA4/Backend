@@ -21,8 +21,13 @@ public class EventCategoryController {
     @Autowired
     EventCategoryRepository eventCategoryRepository;
 
+    @Autowired
+    public EventCategoryController(EventCategoryService eventCategoryService){
+        this.eventCategoryService = eventCategoryService;
+    }
+
     @GetMapping("")
-    public List<EventCategoryDTO> getAllEvent(){
-        return eventCategoryService.getAllEvent();
+    public List<EventCategoryDTO> getEventCategory(){
+        return eventCategoryService.getEventCategory();
     }
 }
