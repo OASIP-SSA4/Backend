@@ -29,15 +29,5 @@ public class EventCategoryService {
         } catch (Exception ex){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบข้อมูล");
         }
-
     }
-
-//    public List<EventCategoryDTO> getEventCategory(){
-//        try{
-//            List<EventCategory>eventCategoryList = eventCategoryRepository.findAll(Sort.by("eventCategoryId").descending());
-//            return listMapper.mapList(eventCategoryList, EventCategoryDTO.class, modelMapper);
-//        } catch (Exception ex){
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบข้อมูล");
-//        }
-//    }
 }

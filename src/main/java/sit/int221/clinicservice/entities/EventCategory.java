@@ -33,6 +33,4 @@ public class EventCategory {
 
     @OneToMany(mappedBy = "eventCategory")
     private Set<Event> events = new LinkedHashSet<>();
-
-
 }

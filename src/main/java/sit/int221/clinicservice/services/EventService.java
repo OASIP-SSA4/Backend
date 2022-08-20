@@ -6,13 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.clinicservice.dtos.CreateEventDTO;
-import sit.int221.clinicservice.dtos.EditEventDTO;
 import sit.int221.clinicservice.dtos.EventDTO;
 import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.repositories.EventRepository;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 public class EventService{
@@ -46,14 +44,4 @@ public class EventService{
                 ));
         return modelMapper.map(event, EventDTO.class);
     }
-
-//    private EventDTO convertEntityToDto(Event event) {
-//        EventDTO eventDTO = new EventDTO();
-//        eventDTO.setId(event.getId());
-//        eventDTO.setBookingName(event.getBookingName());
-//        eventDTO.setEventNotes(event.getEventNotes());
-//        eventDTO.setBookingEmail(event.getBookingEmail());
-//        eventDTO.setEventStartTime(event.getEventStartTime());
-//        return eventDTO;
-//    }
 }

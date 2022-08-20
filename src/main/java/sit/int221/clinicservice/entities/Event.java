@@ -4,11 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sit.int221.clinicservice.entities.EventCategory;
 
 import javax.persistence.*;
-import java.time.Instant;
-import java.time.LocalTime;
 import java.util.Date;
 
 @Getter
