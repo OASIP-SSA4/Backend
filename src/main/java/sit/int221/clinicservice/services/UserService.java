@@ -2,10 +2,12 @@ package sit.int221.clinicservice.services;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.clinicservice.dtos.CreateUserDTO;
+import sit.int221.clinicservice.dtos.EditUserDTO;
 import sit.int221.clinicservice.dtos.UserDTO;
 import sit.int221.clinicservice.entities.User;
 import sit.int221.clinicservice.repositories.UserRepository;
@@ -22,14 +24,14 @@ public class UserService {
     private ListMapper listMapper;
 
     public User save(CreateUserDTO createUserDTO){
-        createUserDTO.setName(createUserDTO.getName().trim());
-        createUserDTO.setEmail(createUserDTO.getEmail().trim());
         User user = modelMapper.map(createUserDTO, User.class);
+        user.setName(createUserDTO.getName().trim());
+        user.setEmail(createUserDTO.getEmail().trim());
         return repository.saveAndFlush(user);
     }
 
     public List<UserDTO> getAllUser(){
-        List<User> userList = repository.findAll();
+        List<User> userList = repository.findAll((Sort.by("name").ascending()));
         return listMapper.mapList(userList, UserDTO.class, modelMapper);
     }
 

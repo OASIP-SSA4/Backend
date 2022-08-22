@@ -12,6 +12,7 @@ import sit.int221.clinicservice.entities.User;
 import sit.int221.clinicservice.repositories.UserRepository;
 import sit.int221.clinicservice.services.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -33,10 +34,10 @@ public class UserController {
     }
 
 //create
-    @PostMapping
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public void User (@Validated @RequestBody CreateUserDTO createUserDTO){
-        userService.save (createUserDTO);
+    public User create(@Validated @RequestBody CreateUserDTO createUserDTO){
+       return userService.save (createUserDTO);
     }
 
 //delete
@@ -50,12 +51,13 @@ public class UserController {
 
 //edit patch
     @PatchMapping("/{id}")
-    public User update(@RequestBody EditUserDTO editUserDTO, @PathVariable Integer id) {
+    public User update(@Valid @RequestBody EditUserDTO editUserDTO, @PathVariable Integer id) {
         User user = userRepository.findById(id)
                 .map(o -> mapUser(o, editUserDTO))
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบ id เบอร์ " + id
                         ));
+        user.setName(editUserDTO.getName().trim());
         return userRepository.saveAndFlush(user);
     }
 

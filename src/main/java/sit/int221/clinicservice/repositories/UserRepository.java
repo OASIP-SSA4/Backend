@@ -5,4 +5,5 @@ import sit.int221.clinicservice.entities.User;
 
 
 public interface UserRepository extends JpaRepository<User, Integer> {
+    Boolean existsUsersByEmail (String email);
 }
