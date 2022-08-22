@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sit.int221.clinicservice.Role;
+import sit.int221.clinicservice.validators.ConstraintNameEdit;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ public class EditUserDTO {
 
     @NotBlank(message = "names is not empty")
     @Size(min = 1, max = 100, message = "names size must be between 1 and 100 characters")
+    @ConstraintNameEdit
     private String name;
 
     @NotBlank(message = "Email can not be empty")

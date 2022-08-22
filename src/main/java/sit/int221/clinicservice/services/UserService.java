@@ -12,6 +12,7 @@ import sit.int221.clinicservice.dtos.UserDTO;
 import sit.int221.clinicservice.entities.User;
 import sit.int221.clinicservice.repositories.UserRepository;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Service
@@ -47,5 +48,36 @@ public class UserService {
                         "Does Not Exist"
                 ));
         return modelMapper.map(user, UserDTO.class);
+    }
+
+    public void checkConstraintNameUser(String name, Integer id){
+        List<User> sameNameUser = repository.findConstraintNameUpdate(name,id);
+        if(sameNameUser.size()>=1){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"This name have been used, please update new name");
+        }
+    }
+
+
+    public void checkConstraintEmailUser(String email, Integer id){
+        List<User> sameEmailUser = repository.findConstraintEmailUpdate(email,id);
+        if(sameEmailUser.size()>=1){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"This email have been used, please update new email");
+        }
+    }
+
+    public UserDTO editUser(@Valid EditUserDTO editUserDTO, Integer id) {
+        checkConstraintEmailUser(editUserDTO.getEmail(),id);
+        checkConstraintNameUser(editUserDTO.getName(),id);
+        User editUser = repository.findById(id).map(user -> {
+            if(editUserDTO.getName() == null || editUserDTO.getName().trim() == ""){editUserDTO.setName(user.getName());}
+            user.setName(editUserDTO.getName().trim());
+            if(editUserDTO.getEmail() == null || editUserDTO.getEmail().trim() == ""){editUserDTO.setEmail(user.getEmail());}
+            user.setEmail(editUserDTO.getEmail().trim());
+            if(editUserDTO.getRole() == null){editUserDTO.setRole(user.getRole());}
+            user.setRole(editUserDTO.getRole());
+            return user;
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User id " + id + " Does Not Exist !!!"));
+        repository.saveAndFlush(editUser);
+        return modelMapper.map(editUser, UserDTO.class);
     }
 }

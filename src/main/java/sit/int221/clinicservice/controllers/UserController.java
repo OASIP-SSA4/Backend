@@ -37,6 +37,7 @@ public class UserController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated @RequestBody CreateUserDTO createUserDTO){
+        createUserDTO.setName(createUserDTO.getName().trim());
        return userService.save (createUserDTO);
     }
 
