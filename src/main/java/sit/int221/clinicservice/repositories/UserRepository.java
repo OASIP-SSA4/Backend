@@ -8,6 +8,8 @@ import java.util.List;
 
 
 public interface UserRepository extends JpaRepository<User, Integer> {
+    List<User> findAll();
+
     @Query(value = "select * from user s where s.name = :userName",nativeQuery = true)
     List<User> findConstraintNameCreate(String userName);
     @Query(value = "select * from user s where s.email = :email",nativeQuery = true)
