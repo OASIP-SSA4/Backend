@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findUserFromName(String userName);
     @Query(value = "select * from user s where s.email = :email",nativeQuery = true)
     User findUserFromEmail(String email);
+
+//    @Query(value = "select * from user s where s.email = :email and s.name = :userName and s.userId != :id",nativeQuery = true)
+//    List<User> findIsOldName(String name, String email, Integer id);
 }

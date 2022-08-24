@@ -8,7 +8,6 @@ import sit.int221.clinicservice.Role;
 import sit.int221.clinicservice.validators.ConstraintEmailCreate;
 import sit.int221.clinicservice.validators.ConstraintNameCreate;
 
-import javax.persistence.Column;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

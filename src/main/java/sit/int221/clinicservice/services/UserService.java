@@ -57,7 +57,6 @@ public class UserService {
         }
     }
 
-
     public void checkConstraintEmailUser(String email, Integer id){
         List<User> sameEmailUser = repository.findConstraintEmailUpdate(email,id);
         if(sameEmailUser.size()>=1){
@@ -65,19 +64,23 @@ public class UserService {
         }
     }
 
-    public UserDTO editUser(@Valid EditUserDTO editUserDTO, Integer id) {
-        checkConstraintEmailUser(editUserDTO.getEmail(),id);
-        checkConstraintNameUser(editUserDTO.getName(),id);
-        User editUser = repository.findById(id).map(user -> {
-            if(editUserDTO.getName() == null || editUserDTO.getName().trim() == ""){editUserDTO.setName(user.getName());}
-            user.setName(editUserDTO.getName().trim());
-            if(editUserDTO.getEmail() == null || editUserDTO.getEmail().trim() == ""){editUserDTO.setEmail(user.getEmail());}
-            user.setEmail(editUserDTO.getEmail().trim());
-            if(editUserDTO.getRole() == null){editUserDTO.setRole(user.getRole());}
-            user.setRole(editUserDTO.getRole());
-            return user;
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User id " + id + " Does Not Exist !!!"));
-        repository.saveAndFlush(editUser);
-        return modelMapper.map(editUser, UserDTO.class);
-    }
+//    public UserDTO editUser(@Valid EditUserDTO editUserDTO, Integer id) {
+//        List<User> isOldName = repository.findIsOldName(editUserDTO.getName(),editUserDTO.getEmail(),id);
+//        if(isOldName.size()>=1){
+//            return modelMapper.map(editUserDTO, UserDTO.class);
+//        }
+//        checkConstraintEmailUser(editUserDTO.getEmail(),id);
+//        checkConstraintNameUser(editUserDTO.getName(),id);
+//        User editUser = repository.findById(id).map(user -> {
+//            if(editUserDTO.getName() == null || editUserDTO.getName().trim() == ""){editUserDTO.setName(user.getName());}
+//            user.setName(editUserDTO.getName().trim());
+//            if(editUserDTO.getEmail() == null || editUserDTO.getEmail().trim() == ""){editUserDTO.setEmail(user.getEmail());}
+//            user.setEmail(editUserDTO.getEmail().trim());
+//            if(editUserDTO.getRole() == null){editUserDTO.setRole(user.getRole());}
+//            user.setRole(editUserDTO.getRole());
+//            return user;
+//        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User id " + id + " Does Not Exist !!!"));
+//        repository.saveAndFlush(editUser);
+//        return modelMapper.map(editUser, UserDTO.class);
+//    }
 }
