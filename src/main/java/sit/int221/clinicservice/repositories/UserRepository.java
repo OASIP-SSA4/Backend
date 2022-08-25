@@ -10,19 +10,22 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAll();
 
-    @Query(value = "select * from user s where s.name = :userName",nativeQuery = true)
+    @Query(value = "select * from user s where s.name = :userName", nativeQuery = true)
     List<User> findConstraintNameCreate(String userName);
-    @Query(value = "select * from user s where s.email = :email",nativeQuery = true)
+    @Query(value = "select * from user s where s.email = :email", nativeQuery = true)
     List<User> findConstraintEmailCreate(String email);
-    @Query(value = "select * from user s where s.name = :userName and s.userId != :id ",nativeQuery = true)
-    List<User> findConstraintNameUpdate(String userName,Integer id);
-    @Query(value = "select * from user s where s.email = :email and s.userId != :id",nativeQuery = true)
-    List<User> findConstraintEmailUpdate(String email,Integer id);
-    @Query(value = "select * from user s where s.name = :userName",nativeQuery = true)
+    @Query(value = "select * from user s where s.name = :userName and s.userId != :id ", nativeQuery = true)
+    List<User> findConstraintNameUpdate(String userName, Integer id);
+    @Query(value = "select * from user s where s.email = :email and s.userId != :id", nativeQuery = true)
+    List<User> findConstraintEmailUpdate(String email, Integer id);
+    @Query(value = "select * from user s where s.name = :userName", nativeQuery = true)
     User findUserFromName(String userName);
-    @Query(value = "select * from user s where s.email = :email",nativeQuery = true)
+    @Query(value = "select * from user s where s.email = :email", nativeQuery = true)
     User findUserFromEmail(String email);
 
-//    @Query(value = "select * from user s where s.email = :email and s.name = :userName and s.userId != :id",nativeQuery = true)
-//    List<User> findIsOldName(String name, String email, Integer id);
+    @Query(value = "select * from user s where s.email = :email and s.name = :userName and s.userId != :id", nativeQuery = true)
+    List<User> findIsOldName(String userName, String email, Integer id);
+
+//    Boolean existsUserByName (String name);
+//    Boolean existsUserByEmail (String email);
 }
