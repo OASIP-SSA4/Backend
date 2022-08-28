@@ -38,7 +38,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated @RequestBody CreateUserDTO createUserDTO){
         createUserDTO.setName(createUserDTO.getName().trim());
-       return userService.save (createUserDTO);
+       return userService.saveNewUser (createUserDTO);
     }
 
 //delete

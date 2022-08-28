@@ -22,4 +22,5 @@ public class UserDTO {
     private Date createdOn;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updatedOn;
+    private String password;
 }

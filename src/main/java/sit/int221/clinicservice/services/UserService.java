@@ -1,5 +1,7 @@
 package sit.int221.clinicservice.services;
 
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.BeanDefinitionDsl;
@@ -25,6 +27,8 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+
+    Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
     public User save(CreateUserDTO createUserDTO){
         User user = modelMapper.map(createUserDTO, User.class);
@@ -86,23 +90,14 @@ public class UserService {
         return modelMapper.map(editUser, UserDTO.class);
     }
 
-//    public EditUserDTO updateUser(@Valid EditUserDTO updateUser, Integer id) {
-//        User user = repository.findById(id).map(o->mapUser(o, updateUser)).orElseThrow(()->
-//                new ResponseStatusException(HttpStatus.BAD_REQUEST, "ไม่มี id เบอร์: "+ id));
-//        repository.saveAndFlush(user);
-//        return modelMapper.map(user, EditUserDTO.class);
-//    }
-//
-//    private User mapUser(User existingUser, EditUserDTO editUserDTO){
-//        if(editUserDTO.getName() != null){
-//            existingUser.setName(editUserDTO.getName().trim());
-//        }
-//        if(editUserDTO.getEmail() != null){
-//            existingUser.setEmail(editUserDTO.getEmail());
-//        }
-//        if (editUserDTO.getRole() != null){
-//            existingUser.setRole(editUserDTO.getRole());
-//        }
-//        return existingUser;
-//    }
+    public User saveNewUser(CreateUserDTO newUser) {
+        newUser.setPassword(argonPassword(newUser.getPassword()));
+        System.out.println(newUser.getPassword());
+        User user = modelMapper.map(newUser, User.class);
+        return repository.saveAndFlush(user);
+    }
+
+    public String argonPassword(String password){
+        return argon2.hash(4, 1024 * 1024, 8, password);
+    }
 }

@@ -39,4 +39,7 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "updatedOn",insertable = false,updatable = false)
     private Date updatedOn;
+
+    @Column(name = "password", nullable = false, length = 100)
+    private String password;
 }
