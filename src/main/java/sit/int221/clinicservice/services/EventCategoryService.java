@@ -30,4 +30,13 @@ public class EventCategoryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบข้อมูล");
         }
     }
+
+    public EventCategoryDTO getEventCategoryById(Integer id) {
+        EventCategory event = eventCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Event id " + id +
+                        "Does Not Exist !!!"
+                ));
+        return modelMapper.map(event, EventCategoryDTO.class);
+    }
 }

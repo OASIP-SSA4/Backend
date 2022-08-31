@@ -22,10 +22,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findUserFromName(String userName);
     @Query(value = "select * from user s where s.email = :email", nativeQuery = true)
     User findUserFromEmail(String email);
-
     @Query(value = "select * from user s where s.email = :email and s.name = :userName and s.userId != :id", nativeQuery = true)
     List<User> findIsOldName(String userName, String email, Integer id);
 
-//    Boolean existsUserByName (String name);
-//    Boolean existsUserByEmail (String email);
+    Boolean existsUserByName (String name);
+    Boolean existsUserByEmail (String email);
+    User findByEmail (String email);
 }

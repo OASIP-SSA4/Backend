@@ -30,4 +30,9 @@ public class EventCategoryController {
     public List<EventCategoryDTO> getEventCategory(){
         return eventCategoryService.getEventCategory();
     }
+
+    @GetMapping("/{id}")
+    public EventCategoryDTO getEventCategoryById(@PathVariable Integer id){
+        return eventCategoryService.getEventCategoryById(id);
+    }
 }
