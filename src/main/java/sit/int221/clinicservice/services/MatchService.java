@@ -2,21 +2,35 @@ package sit.int221.clinicservice.services;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
+import lombok.Getter;
+import lombok.Setter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sit.int221.clinicservice.dtos.MatchUserDTO;
 import sit.int221.clinicservice.entities.User;
 import sit.int221.clinicservice.exception.EventExceptionModel;
 import sit.int221.clinicservice.exception.EventFieldError;
 import sit.int221.clinicservice.repositories.UserRepository;
+import sit.int221.clinicservice.tokens.JwtResponse;
+import sit.int221.clinicservice.tokens.JwtTokenUtil;
 
+import java.util.ArrayList;
+
+@Getter
+@Setter
 @Service
-public class MatchService {
+public class MatchService implements UserDetailsService {
     private final UserRepository repository;
     private final ModelMapper modelMapper;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
@@ -36,7 +50,9 @@ public class MatchService {
             boolean matchPassword = argon2.verify(user.getPassword(), matchUserDTO.getPassword());
 
             if (sth != null && matchPassword){
-                return new ResponseEntity<>("Password Match", HttpStatus.OK);
+                UserDetails userDetails = loadUserByUsername(matchUserDTO.getEmail());
+                String token = jwtTokenUtil.generateToken(userDetails);
+                return new ResponseEntity<>(new JwtResponse("Login Successful", "Password Match", token), HttpStatus.OK);
             }else {
                 fieldError = new EventFieldError("password", "password NOT Matched", HttpStatus.UNAUTHORIZED);
                 eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed", fieldError);
@@ -47,5 +63,10 @@ public class MatchService {
             eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed", fieldError);
             return new ResponseEntity<>(eventExceptionModel, fieldError.getStatus());
         }
+    }
+
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
+        User user = repository.findByEmail(email);
+        return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), new ArrayList<>());
     }
 }

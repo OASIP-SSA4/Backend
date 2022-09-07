@@ -8,7 +8,7 @@ import sit.int221.clinicservice.services.MatchService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/match")
+@RequestMapping(path = "/api")
 public class MatchController {
     private final MatchService service;
 
@@ -16,8 +16,8 @@ public class MatchController {
         this.service = service;
     }
 
-    @PostMapping("")
-    public ResponseEntity<Object>match(@Valid @RequestBody MatchUserDTO matchUserDTO){
+    @PostMapping("/login")
+    public ResponseEntity<Object>createAuthenticationToken(@RequestBody MatchUserDTO matchUserDTO){
         return service.match(matchUserDTO);
     }
 }
