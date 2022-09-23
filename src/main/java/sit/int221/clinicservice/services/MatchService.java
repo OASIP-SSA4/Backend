@@ -25,7 +25,7 @@ import java.util.ArrayList;
 @Getter
 @Setter
 @Service
-public class MatchService implements UserDetailsService {
+public class MatchService  implements UserDetailsService {
     private final UserRepository repository;
     private final ModelMapper modelMapper;
 
@@ -35,12 +35,13 @@ public class MatchService implements UserDetailsService {
     Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
     @Autowired
-    public MatchService(UserRepository repository, ModelMapper modelMapper){
+    public MatchService(UserRepository repository, ModelMapper modelMapper) {
         this.repository = repository;
         this.modelMapper = modelMapper;
     }
 
-    public ResponseEntity<Object> match(MatchUserDTO matchUserDTO){
+    // เช็ค Mail + Password
+    public ResponseEntity<Object> match(MatchUserDTO matchUserDTO) {
         EventFieldError fieldError;
         EventExceptionModel eventExceptionModel;
 
@@ -49,24 +50,27 @@ public class MatchService implements UserDetailsService {
             Object sth = modelMapper.map(user, MatchUserDTO.class);
             boolean matchPassword = argon2.verify(user.getPassword(), matchUserDTO.getPassword());
 
-            if (sth != null && matchPassword){
+            // กรณีที่ถูกต้อง status 200
+            if (sth != null && matchPassword) {
                 UserDetails userDetails = loadUserByUsername(matchUserDTO.getEmail());
                 String token = jwtTokenUtil.generateToken(userDetails);
-                return new ResponseEntity<>(new JwtResponse("Login Successful", "Password Match", token), HttpStatus.OK);
-            }else {
-                fieldError = new EventFieldError("password", "password NOT Matched", HttpStatus.UNAUTHORIZED);
-                eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed", fieldError);
-                return new ResponseEntity<>(eventExceptionModel, fieldError.getStatus());
+                return new ResponseEntity<>( new JwtResponse("Login Successful","Password Matched", token), HttpStatus.OK);
+            } else {
+                // กรณีที่ mail ถูก password ผิด status 401
+                fieldError = new EventFieldError("password", "Password NOT Matched", HttpStatus.UNAUTHORIZED);
+                eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed !!!", fieldError);
+                return new ResponseEntity<>( eventExceptionModel, fieldError.getStatus());
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
+            // กรณีที่ไม่มี mail ในระบบ status 404
             fieldError = new EventFieldError("email", "A user with the specified email DOES NOT exist", HttpStatus.NOT_FOUND);
-            eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed", fieldError);
-            return new ResponseEntity<>(eventExceptionModel, fieldError.getStatus());
+            eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed !!!", fieldError);
+            return new ResponseEntity<>( eventExceptionModel, fieldError.getStatus());
         }
     }
 
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = repository.findByEmail(email);
-        return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), new ArrayList<>());
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
     }
 }
