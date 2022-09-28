@@ -12,4 +12,5 @@ public class JwtResponse implements Serializable {
     private String title;
     private String message;
     private final String token;
+    private String refreshToken;
 }

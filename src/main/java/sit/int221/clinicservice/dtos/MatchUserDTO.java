@@ -13,7 +13,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class MatchUserDTO implements Serializable {
     private static final long serialVersionUID = 5926468583005150707L;
-
     private String password;
     private String email;
 }

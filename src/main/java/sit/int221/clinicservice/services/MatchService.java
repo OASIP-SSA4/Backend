@@ -20,6 +20,7 @@ import sit.int221.clinicservice.repositories.UserRepository;
 import sit.int221.clinicservice.tokens.JwtResponse;
 import sit.int221.clinicservice.tokens.JwtTokenUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
 @Getter
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 public class MatchService  implements UserDetailsService {
     private final UserRepository repository;
     private final ModelMapper modelMapper;
+    EventFieldError fieldError;
+    EventExceptionModel eventExceptionModel;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -42,9 +45,6 @@ public class MatchService  implements UserDetailsService {
 
     // เช็ค Mail + Password
     public ResponseEntity<Object> match(MatchUserDTO matchUserDTO) {
-        EventFieldError fieldError;
-        EventExceptionModel eventExceptionModel;
-
         try {
             User user = repository.findByEmail(matchUserDTO.getEmail());
             Object sth = modelMapper.map(user, MatchUserDTO.class);
@@ -54,7 +54,8 @@ public class MatchService  implements UserDetailsService {
             if (sth != null && matchPassword) {
                 UserDetails userDetails = loadUserByUsername(matchUserDTO.getEmail());
                 String token = jwtTokenUtil.generateToken(userDetails);
-                return new ResponseEntity<>( new JwtResponse("Login Successful","Password Matched", token), HttpStatus.OK);
+                final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+                return new ResponseEntity<>( new JwtResponse("Login Successful","Password Matched", token, refreshToken), HttpStatus.OK);
             } else {
                 // กรณีที่ mail ถูก password ผิด status 401
                 fieldError = new EventFieldError("password", "Password NOT Matched", HttpStatus.UNAUTHORIZED);
@@ -72,5 +73,28 @@ public class MatchService  implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = repository.findByEmail(email);
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+    }
+
+    public ResponseEntity<Object> refreshToken(HttpServletRequest request){
+        String requestRefreshToken = request.getHeader("Authorization").substring(7);
+        String userRefreshToken = jwtTokenUtil.getUsernameFromToken(requestRefreshToken);
+        UserDetails userDetails = loadUserByUsername(userRefreshToken);
+        String accessToken = jwtTokenUtil.generateToken(userDetails);
+//        String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+//            String getRefreshTokenExpire = jwtTokenUtill.getExpirationDateFromToken(u)
+        System.out.println(checkExpired(requestRefreshToken));
+        if (checkExpired(requestRefreshToken).equals(true)) {
+//            refresh
+            return new ResponseEntity<>( new JwtResponse("Refresh Token Success","REFRESH", accessToken, requestRefreshToken), HttpStatus.OK);
+        } else {
+//            fail request token
+            fieldError = new EventFieldError("Refresh Token", "Can't find Refresh Token", HttpStatus.NOT_FOUND);
+            eventExceptionModel = new EventExceptionModel(fieldError.getStatus(), "Attributes validation failed !!!", fieldError);
+            return new ResponseEntity<>( eventExceptionModel, fieldError.getStatus());
+        }
+    }
+
+    private Boolean checkExpired(String request){
+        return !jwtTokenUtil.isTokenExpired(request);
     }
 }

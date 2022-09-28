@@ -18,7 +18,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtTokenUtil implements Serializable {
 
     private static final long serialVersionUID = -2550185165626007488L;
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+
+//    30 นาที & 24 ชั่วโมง
+//    public static final long JWT_TOKEN_VALIDITY = 30 * 60;
+//    public static final long REFRESH_TOKEN_VALIDITY = 24 * 60 * 60;
+
+//    60 วินาที & 3 นาที
+    public static final long JWT_TOKEN_VALIDITY = 60;
+    public static final long REFRESH_TOKEN_VALIDITY = 3*60;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -44,7 +51,17 @@ public class JwtTokenUtil implements Serializable {
     }
 
     //check if the token has expired
-    private Boolean isTokenExpired(String token) {
+//    private Boolean isTokenExpired(String token) {
+//        final Date expiration = getExpirationDateFromToken(token);
+//        return expiration.before(new Date());
+//    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return refreshToken(claims, userDetails.getUsername());
+    }
+
+    public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
@@ -61,8 +78,17 @@ public class JwtTokenUtil implements Serializable {
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
     private String doGenerateToken(Map<String, Object> claims, String subject) {
+        System.out.println(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000));
+        System.out.println(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY * 1000));
+
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
+    }
+
+    public String refreshToken(Map<String, Object> claims, String subject){
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 

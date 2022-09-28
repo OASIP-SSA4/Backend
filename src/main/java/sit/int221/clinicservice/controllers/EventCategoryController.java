@@ -11,6 +11,7 @@ import sit.int221.clinicservice.entities.EventCategory;
 import sit.int221.clinicservice.repositories.EventCategoryRepository;
 import sit.int221.clinicservice.services.EventCategoryService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,21 +19,23 @@ import java.util.List;
 public class EventCategoryController {
     @Autowired
     EventCategoryService eventCategoryService;
-    @Autowired
-    EventCategoryRepository eventCategoryRepository;
 
     @Autowired
-    public EventCategoryController(EventCategoryService eventCategoryService){
-        this.eventCategoryService = eventCategoryService;
-    }
+    EventCategoryService eventService;
 
     @GetMapping("")
-    public List<EventCategoryDTO> getEventCategory(){
-        return eventCategoryService.getEventCategory();
+    public List<EventCategoryDTO> getAll(){
+        return eventCategoryService.getAllEvent();
     }
 
     @GetMapping("/{id}")
-    public EventCategoryDTO getEventCategoryById(@PathVariable Integer id){
-        return eventCategoryService.getEventCategoryById(id);
+    public EventCategoryDTO getEventById(@PathVariable Integer id){
+        return eventService.getEventById(id);
     }
+
+    @PatchMapping("/{id}")
+    public EventCategory updateCategory(@Valid @RequestBody EventCategoryDTO updateCategory, @PathVariable Integer id) {
+        return eventCategoryService.updateCategory(updateCategory, id);
+    }
+
 }

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import sit.int221.clinicservice.dtos.MatchUserDTO;
 import sit.int221.clinicservice.services.MatchService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -19,5 +20,10 @@ public class MatchController {
     @PostMapping("/login")
     public ResponseEntity<Object>createAuthenticationToken(@RequestBody MatchUserDTO matchUserDTO){
         return service.match(matchUserDTO);
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<Object> refreshLogin(@Valid HttpServletRequest request){
+        return service.refreshToken(request);
     }
 }
