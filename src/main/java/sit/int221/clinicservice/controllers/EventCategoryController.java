@@ -1,14 +1,10 @@
 package sit.int221.clinicservice.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import sit.int221.clinicservice.dtos.EditEventCategoryDTO;
 import sit.int221.clinicservice.dtos.EventCategoryDTO;
-import sit.int221.clinicservice.dtos.EventDTO;
-import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.entities.EventCategory;
-import sit.int221.clinicservice.repositories.EventCategoryRepository;
 import sit.int221.clinicservice.services.EventCategoryService;
 
 import javax.validation.Valid;
@@ -34,8 +30,7 @@ public class EventCategoryController {
     }
 
     @PatchMapping("/{id}")
-    public EventCategory updateCategory(@Valid @RequestBody EventCategoryDTO updateCategory, @PathVariable Integer id) {
-        return eventCategoryService.updateCategory(updateCategory, id);
+    public EventCategory updateCategory(@Valid @RequestBody EditEventCategoryDTO EditCategory, @PathVariable Integer id) {
+        return eventCategoryService.updateCategory(EditCategory, id);
     }
-
 }

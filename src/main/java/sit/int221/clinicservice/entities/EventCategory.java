@@ -6,9 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -22,7 +21,9 @@ public class EventCategory {
     @Column(name = "eventCategoryId", nullable = false)
     private Integer id;
 
-    @Column(name = "eventCategoryName", nullable = false, length = 100)
+    @NotBlank(message = "eventCategoryName cannot be empty")
+    @Size(max = 100, message = "eventCategoryName Must not exceed 100 characters.")
+    @Column(name = "eventCategoryName", nullable = false)
     private String eventCategoryName;
 
     @Column(name = "eventCategoryDescription", length = 500)
@@ -30,7 +31,4 @@ public class EventCategory {
 
     @Column(name = "eventDuration", nullable = false)
     private Integer eventDuration;
-
-    @OneToMany(mappedBy = "eventCategory")
-    private Set<Event> events = new LinkedHashSet<>();
 }

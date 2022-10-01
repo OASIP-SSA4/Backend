@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import sit.int221.clinicservice.dtos.EditEventCategoryDTO;
 import sit.int221.clinicservice.dtos.EventCategoryDTO;
 import sit.int221.clinicservice.entities.EventCategory;
 import sit.int221.clinicservice.repositories.EventCategoryRepository;
@@ -36,7 +37,7 @@ public class EventCategoryService {
         return modelMapper.map(event, EventCategoryDTO.class);
     }
 
-    public EventCategory updateCategory(EventCategoryDTO updateCategory, Integer categoryId) {
+    public EventCategory updateCategory(EditEventCategoryDTO updateCategory, Integer categoryId) {
         EventCategory existingCategory = eventCategoryRepository.findById(categoryId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, categoryId + " Dose not exits!!!"));
         List<EventCategoryDTO> categoryList = getAllEvent();
         boolean isInvaild = false;
@@ -44,31 +45,26 @@ public class EventCategoryService {
         if(updateCategory.getCategoryName() == (null) || updateCategory.getCategoryName().length() == 0){
             exception += "  CategoryName cannot be empty  ";
             isInvaild = true;
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CategoryName cannot be empty");
         }
         if(updateCategory.getCategoryName().length() > 100){
             exception += "  CategoryName Must not exceed 100 characters.    ";
             isInvaild = true;
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CategoryName Must not exceed 100 characters.");
         }
         if(!(existingCategory.getEventCategoryName().trim().equalsIgnoreCase(updateCategory.getCategoryName().trim()))){
             for (int i = 0; i < categoryList.size(); i++) {
                 if (categoryList.get(i).getEventCategoryName().trim().equalsIgnoreCase(updateCategory.getEventCategoryName().trim())) {
                     exception += "    This CategoryName is overlapping.   ";
                     isInvaild = true;
-//                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This name is overlapping");
                 }
             }
         }
         if(updateCategory.getEventDuration() < 1 || updateCategory.getEventDuration() > 480){
             exception += "  Duration is must be between 1-480 minutes.   ";
             isInvaild = true;
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duration must between 1-480 min.");
         }
         if(updateCategory.getEventCategoryDescription().length() > 500){
             exception += "  Description Must not exceed 500 characters. ";
             isInvaild = true;
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description Must not exceed 500 characters.");
         }
         if(isInvaild){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception);
