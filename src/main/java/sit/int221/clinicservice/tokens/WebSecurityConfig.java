@@ -3,6 +3,7 @@ package sit.int221.clinicservice.tokens;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,21 +14,29 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import sit.int221.clinicservice.exception.CustomAccessDeniedHandler;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    @Autowired
-    private UserDetailsService matchService;
+    private final UserDetailsService matchService;
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private final JwtRequestFilter jwtRequestFilter;
+
+
+
+    public WebSecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, UserDetailsService matchService, JwtRequestFilter jwtRequestFilter) {
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.matchService = matchService;
+        this.jwtRequestFilter = jwtRequestFilter;
+
+    }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -48,12 +57,40 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // หน้าแรกเป็น Login
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable()
-                .authorizeRequests().antMatchers("/api/login", "/api/users/signup").permitAll()
-                .anyRequest().authenticated().and().
-                exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        httpSecurity.cors().and().csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                .accessDeniedHandler(accessDeniedHandler())
+                .and()
+//                .exceptionHandling().accessDeniedHandler(new JwtAccessDenied()).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .authorizeRequests().antMatchers("/api/login","/api/users/signup").permitAll()
+                .antMatchers("/api/users/**","/api/match/**").hasRole("admin")
+                .antMatchers(HttpMethod.GET, "/api/events","/api/events/{id}").hasAnyRole("admin","student","lecturer")
+                .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("admin","student","guest")
+                .antMatchers(HttpMethod.PUT, "/api/events/{id}").hasAnyRole("admin","student")
+                .antMatchers(HttpMethod.DELETE, "/api/events/{id}").hasAnyRole("admin","student")
+                .anyRequest().authenticated();
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // We don't need CSRF for this example
+//        httpSecurity.csrf().disable()
+        // dont authenticate this particular request
+//                การดักเข้าได้เฉพาะ login
+//                .authorizeRequests().antMatchers("/api/login","/api/users/signup").permitAll().
+        // all other requests need to be authenticated
+//                        anyRequest().authenticated().and().
+        // make sure we use stateless session; session won't be used to
+        // store user's state.
+//                        exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        // Add a filter to validate the tokens with every request
+//        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
     }
 }
 

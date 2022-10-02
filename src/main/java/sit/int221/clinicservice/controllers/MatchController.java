@@ -1,5 +1,6 @@
 package sit.int221.clinicservice.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.clinicservice.dtos.MatchUserDTO;
@@ -25,5 +26,11 @@ public class MatchController {
     @GetMapping("/refresh")
     public ResponseEntity<Object> refreshLogin(@Valid HttpServletRequest request){
         return service.refreshToken(request);
+    }
+
+    @PostMapping("/match")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity userLoginDTO(@Valid @RequestBody MatchUserDTO matchUserDTO) {
+        return service.matchCheck(matchUserDTO);
     }
 }

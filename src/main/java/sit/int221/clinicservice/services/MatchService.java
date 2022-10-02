@@ -8,9 +8,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sit.int221.clinicservice.dtos.MatchUserDTO;
 import sit.int221.clinicservice.entities.User;
@@ -19,9 +22,11 @@ import sit.int221.clinicservice.exception.EventFieldError;
 import sit.int221.clinicservice.repositories.UserRepository;
 import sit.int221.clinicservice.tokens.JwtResponse;
 import sit.int221.clinicservice.tokens.JwtTokenUtil;
+import sit.int221.clinicservice.tokens.Response;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -72,7 +77,13 @@ public class MatchService  implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = repository.findByEmail(email);
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthority(user));
+    }
+
+    private List<GrantedAuthority> getAuthority(User user){
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+        return authorities;
     }
 
     public ResponseEntity<Object> refreshToken(HttpServletRequest request){
@@ -80,10 +91,10 @@ public class MatchService  implements UserDetailsService {
         String userRefreshToken = jwtTokenUtil.getUsernameFromToken(requestRefreshToken);
         UserDetails userDetails = loadUserByUsername(userRefreshToken);
         String accessToken = jwtTokenUtil.generateToken(userDetails);
-//        String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+        String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
 //            String getRefreshTokenExpire = jwtTokenUtill.getExpirationDateFromToken(u)
-        System.out.println(checkExpired(requestRefreshToken));
-        if (checkExpired(requestRefreshToken).equals(true)) {
+//        System.out.println(checkExpired(requestRefreshToken));
+        if (jwtTokenUtil.validateToken(requestRefreshToken, userDetails).equals(true)) {
 //            refresh
             return new ResponseEntity<>( new JwtResponse("Refresh Token Success","REFRESH", accessToken, requestRefreshToken), HttpStatus.OK);
         } else {
@@ -94,7 +105,17 @@ public class MatchService  implements UserDetailsService {
         }
     }
 
-    private Boolean checkExpired(String request){
-        return !jwtTokenUtil.isTokenExpired(request);
+//    private Boolean checkExpired(String request){
+//        return !jwtTokenUtil.isTokenExpired(request);
+//    }
+
+    public ResponseEntity<Object> matchCheck(MatchUserDTO matchUserDTO) {
+        if (repository.existsUserByEmail(matchUserDTO.getEmail())) {
+            if (argon2.verify(String.valueOf(matchUserDTO.getPassword()), repository.findByEmail(matchUserDTO.getEmail()).getPassword())) {
+                return ResponseEntity.ok("Password match!");
+            }
+            return Response.response(HttpStatus.UNAUTHORIZED, "Password doesn't match");
+        }
+        return Response.response(HttpStatus.NOT_FOUND, "User not found username : " + matchUserDTO.getEmail());
     }
 }

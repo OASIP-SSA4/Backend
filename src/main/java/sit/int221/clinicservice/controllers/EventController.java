@@ -12,6 +12,7 @@ import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.repositories.EventRepository;
 import sit.int221.clinicservice.services.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -23,8 +24,8 @@ public class EventController {
     EventRepository eventRepository;
 
     @GetMapping("")
-    public List<EventDTO> getAllEvent(){
-        return eventService.getAllEvent();
+    public List<EventDTO> getAllEvent(HttpServletRequest httpServletRequest){
+        return eventService.getAll(httpServletRequest);
     }
 
     @GetMapping("/{id}")
@@ -50,13 +51,9 @@ public class EventController {
 
 //edit patch
     @PatchMapping("/{id}")
-    public Event update(@RequestBody EditEventDTO updateEvent, @PathVariable Integer id) {
-        Event event = eventRepository.findById(id)
-                .map(o -> mapEvent(o, updateEvent))
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบ id เบอร์" + id
-                ));
-        return eventRepository.saveAndFlush(event);
+    @ResponseStatus(code = HttpStatus.OK)
+    public EditEventDTO editEventDTO(@RequestBody EditEventDTO editEventDTO, @PathVariable Integer id) {
+        return eventService.editEventDTO(editEventDTO, id);
     }
 
     private Event mapEvent(Event existingEvent , EditEventDTO updateEvent){

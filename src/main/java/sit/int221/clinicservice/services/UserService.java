@@ -6,16 +6,32 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.clinicservice.dtos.CreateUserDTO;
 import sit.int221.clinicservice.dtos.EditUserDTO;
+import sit.int221.clinicservice.dtos.MatchUserDTO;
 import sit.int221.clinicservice.dtos.UserDTO;
 import sit.int221.clinicservice.entities.User;
 import sit.int221.clinicservice.repositories.UserRepository;
+import sit.int221.clinicservice.tokens.JwtResponse;
+import sit.int221.clinicservice.tokens.JwtTokenUtil;
+import sit.int221.clinicservice.validators.HandleValidationErrors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -25,6 +41,8 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
@@ -97,5 +115,59 @@ public class UserService {
 
     public String argonPassword(String password){
         return argon2.hash(4, 1024 * 1024, 8, password);
+    }
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private MatchService matchService;
+
+    public ResponseEntity MatchUserDTO(@Valid MatchUserDTO matchUserDTO, HttpServletResponse httpServletResponse, ServletWebRequest request) throws Exception {
+        Map<String,String> errorMap = new HashMap<>();
+        String status;
+
+        if (repository.existsUserByEmail(matchUserDTO.getEmail())) {
+            User user = repository.findByEmail(matchUserDTO.getEmail());
+            if (argon2.verify(matchUserDTO.getPassword(), user.getPassword())) {
+                authenticate(matchUserDTO.getEmail(), matchUserDTO.getPassword());
+                authenticate(matchUserDTO.getEmail(), matchUserDTO.getPassword());
+
+                final UserDetails userDetails = matchService
+                        .loadUserByUsername(matchUserDTO.getEmail());
+
+                final String token = jwtTokenUtil.generateToken(userDetails);
+
+                final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+                return ResponseEntity.ok(new JwtResponse("Login Successful","Password Matched", token, refreshToken));
+//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
+            } else {
+                errorMap.put("message","Password NOT Matched");
+                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                status = HttpStatus.UNAUTHORIZED.toString();
+//            }
+            }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
+        }
+
+        HandleValidationErrors errors = new HandleValidationErrors(
+                Date.from(Instant.now()),
+                httpServletResponse.getStatus(),
+                status,
+                errorMap.get("message"),
+                request.getRequest().getRequestURI());
+        return ResponseEntity.status(httpServletResponse.getStatus()).body(errors);
+
+    }
+
+    private void authenticate(String email, String password) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
     }
 }
