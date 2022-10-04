@@ -29,31 +29,28 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public EventDTO getEventById(@PathVariable Integer id){
-        return eventService.getEventById(id);
+    public EventDTO getEventById(@PathVariable Integer id, HttpServletRequest httpServletRequest){
+        return eventService.getEventById(id, httpServletRequest);
     }
 
 //create
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public void Event (@Validated @RequestBody CreateEventDTO createEventDTO) {
-        eventService.save (createEventDTO);
+    public void Event (@Validated @RequestBody CreateEventDTO createEventDTO, HttpServletRequest httpServletRequest) {
+        eventService.save (createEventDTO, httpServletRequest);
     }
 
 //delete
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        eventRepository.findById(id).orElseThrow(()->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        id + " does not exist !!!"));
-        eventRepository.deleteById(id);
+    public void delete(@PathVariable Integer id, HttpServletRequest httpServletRequest) {
+        eventService.delete(id, httpServletRequest);
     }
 
 //edit patch
     @PatchMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public EditEventDTO editEventDTO(@RequestBody EditEventDTO editEventDTO, @PathVariable Integer id) {
-        return eventService.editEventDTO(editEventDTO, id);
+    public EditEventDTO editEventDTO(@RequestBody EditEventDTO editEventDTO, @PathVariable Integer id, HttpServletRequest httpServletRequest) {
+        return eventService.editEventDTO(editEventDTO, id, httpServletRequest);
     }
 
     private Event mapEvent(Event existingEvent , EditEventDTO updateEvent){
