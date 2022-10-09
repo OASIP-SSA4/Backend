@@ -53,20 +53,6 @@ public class UserController {
 //edit patch
     @PatchMapping("/{id}")
     public UserDTO update(@Valid @RequestBody EditUserDTO editUserDTO, @PathVariable Integer id) {
-//        User user = userRepository.findById(id)
-//                .map(o -> mapUser(o, editUserDTO))
-//                .orElseThrow(() ->
-//                        new ResponseStatusException(HttpStatus.NOT_FOUND, "ไม่พบ id เบอร์ " + id
-//                        ));
-//        user.setName(editUserDTO.getName().trim());
-//        return userRepository.saveAndFlush(user);
         return userService.updateUser(editUserDTO, id);
     }
-
-//    private User mapUser(User existingUser, EditUserDTO updateUser){
-//        existingUser.setName(updateUser.getName());
-//        existingUser.setEmail(updateUser.getEmail());
-//        existingUser.setRole(updateUser.getRole());
-//        return existingUser;
-//    }
 }

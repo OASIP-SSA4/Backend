@@ -61,13 +61,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 .accessDeniedHandler(accessDeniedHandler())
                 .and()
+                .anonymous().principal("guest").authorities("ROLE_guest").and()
 //                .exceptionHandling().accessDeniedHandler(new JwtAccessDenied()).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/login","/api/users/signup").permitAll()
                 .antMatchers("/api/users/**","/api/match/**").hasRole("admin")
                 .antMatchers(HttpMethod.GET, "/api/events","/api/events/{id}").hasAnyRole("admin","student","lecturer")
                 .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("admin","student","guest")
-                .antMatchers(HttpMethod.PUT, "/api/events/{id}").hasAnyRole("admin","student")
+                .antMatchers(HttpMethod.PATCH, "/api/events/{id}").hasAnyRole("admin","student")
                 .antMatchers(HttpMethod.DELETE, "/api/events/{id}").hasAnyRole("admin","student")
                 .anyRequest().authenticated();
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

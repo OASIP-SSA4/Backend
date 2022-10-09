@@ -13,6 +13,7 @@ import sit.int221.clinicservice.dtos.EventDTO;
 import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.entities.EventCategory;
 import sit.int221.clinicservice.entities.User;
+import sit.int221.clinicservice.repositories.EventCategoryOwnerRepository;
 import sit.int221.clinicservice.repositories.EventCategoryRepository;
 import sit.int221.clinicservice.repositories.EventRepository;
 import sit.int221.clinicservice.repositories.UserRepository;
@@ -37,7 +38,7 @@ public class EventService{
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private EventCategoryRepository eventCategoryRepository;
+    private EventCategoryOwnerRepository eventCategoryOwnerRepository;
 
     public List<EventDTO> getAll(HttpServletRequest request){
         List<Event> eventsList = repository.findAll(Sort.by(Sort.Direction.DESC,"eventStartTime"));
@@ -46,15 +47,10 @@ public class EventService{
         if(userDetails != null && (request.isUserInRole("ROLE_student"))){
             List<Event> eventsListByEmail = repository.findByBookingEmail(getUserEmail);
             return listMapper.mapList(eventsListByEmail, EventDTO.class,modelMapper);
-
+        } else if (userDetails != null && (request.isUserInRole("ROLE_lecturer"))){
+            List<Event> eventListByCategoryOwner = repository.findEventCategoryOwnerByEmail(getUserEmail);
+            return listMapper.mapList(eventListByCategoryOwner , EventDTO.class,modelMapper);
         }
-//        else if(userDetails != null && (request.isUserInRole("ROLE_lecturer"))){
-////            List<Events> eventsListByEmail = repository.findByBookingEmail(getUserEmail);
-//            List<Event> eventsListByCategoryOwner = repository.findEventsCategoryOwnerByEmail(getUserEmail);
-//
-//            return listMapper.mapList(eventsListByCategoryOwner , EventDTO.class,modelMapper);
-//
-//        }
         return listMapper.mapList(eventsList, EventDTO.class,modelMapper);
     }
 
@@ -94,7 +90,7 @@ public class EventService{
             if((httpServletRequest.isUserInRole("ROLE_student")) && !event.getBookingEmail().equals(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot Edit event which you didn't own");
             }
-            if((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
+            if((httpServletRequest.isUserInRole("ROLE_lecturer")) && !event.getBookingEmail().equals(user.getEmail())){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can delete event");
             }
         } else {
@@ -112,7 +108,7 @@ public class EventService{
             if((httpServletRequest.isUserInRole("ROLE_student")) && !event.getBookingEmail().equals(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot Edit event which you didn't own");
             }
-            if((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
+            if((httpServletRequest.isUserInRole("ROLE_lecturer")) && !event.getBookingEmail().equals(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can delete event");
             }
         } else {
@@ -134,7 +130,7 @@ public class EventService{
             if((httpServletRequest.isUserInRole("ROLE_student")) && !event.getBookingEmail().equals(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete event which you didn't own");
             }
-            if((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
+            if((httpServletRequest.isUserInRole("ROLE_lecturer")) && !event.getBookingEmail().equals(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can delete event");
             }
         } else {
@@ -161,5 +157,11 @@ public class EventService{
         if(constraintEvent.size() >= 1){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"name and datetime is already booked");
         }
+    }
+
+    public User getUserFromRequest(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+        return  userRepository.findByEmail(userEmail);
     }
 }

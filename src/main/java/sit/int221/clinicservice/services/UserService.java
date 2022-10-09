@@ -140,17 +140,14 @@ public class UserService {
 
                 final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
                 return ResponseEntity.ok(new JwtResponse("Login Successful","Password Matched", token, refreshToken));
-//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
             } else {
                 errorMap.put("message","Password NOT Matched");
                 httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 status = HttpStatus.UNAUTHORIZED.toString();
-//            }
             }
         }else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
         }
-
         HandleValidationErrors errors = new HandleValidationErrors(
                 Date.from(Instant.now()),
                 httpServletResponse.getStatus(),
@@ -158,7 +155,6 @@ public class UserService {
                 errorMap.get("message"),
                 request.getRequest().getRequestURI());
         return ResponseEntity.status(httpServletResponse.getStatus()).body(errors);
-
     }
 
     private void authenticate(String email, String password) throws Exception {
