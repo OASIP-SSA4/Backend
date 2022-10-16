@@ -35,7 +35,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.matchService = matchService;
         this.jwtRequestFilter = jwtRequestFilter;
-
     }
 
     @Autowired
@@ -62,31 +61,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(accessDeniedHandler())
                 .and()
                 .anonymous().principal("guest").authorities("ROLE_guest").and()
-//                .exceptionHandling().accessDeniedHandler(new JwtAccessDenied()).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/login","/api/users/signup").permitAll()
                 .antMatchers("/api/users/**","/api/match/**").hasRole("admin")
                 .antMatchers(HttpMethod.GET, "/api/events","/api/events/{id}").hasAnyRole("admin","student","lecturer")
-                .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("admin","student","guest")
+                .antMatchers(HttpMethod.POST, "/api/events").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/api/events/{id}").hasAnyRole("admin","student")
                 .antMatchers(HttpMethod.DELETE, "/api/events/{id}").hasAnyRole("admin","student")
                 .anyRequest().authenticated();
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // We don't need CSRF for this example
-//        httpSecurity.csrf().disable()
-        // dont authenticate this particular request
-//                การดักเข้าได้เฉพาะ login
-//                .authorizeRequests().antMatchers("/api/login","/api/users/signup").permitAll().
-        // all other requests need to be authenticated
-//                        anyRequest().authenticated().and().
-        // make sure we use stateless session; session won't be used to
-        // store user's state.
-//                        exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        // Add a filter to validate the tokens with every request
-//        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean

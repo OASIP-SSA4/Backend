@@ -56,17 +56,10 @@ public class EventService{
 
     public Event save(CreateEventDTO createEventDTO, HttpServletRequest httpServletRequest) {
         Event newEvent = modelMapper.map(createEventDTO, Event.class);
-        String getUserEmail = getEmailFromToken(httpServletRequest);
-        User user = userRepository.findByEmail(getUserEmail);
-        if(user != null) {
-            if((httpServletRequest.isUserInRole("ROLE_student")) && !newEvent.getBookingEmail().equals(user.getEmail())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create event which you didn't own");
-            }
-            if((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can delete event");
-            }
-        } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please Sign in again");
+        if ((httpServletRequest.isUserInRole("ROLE_student"))) {
+            createEventDTO.setBookingEmail(getEmailFromToken(httpServletRequest));
+        } else if ((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can create event");
         }
         checkConstraints(newEvent.getBookingName(),newEvent.getEventStartTime());
         repository.saveAndFlush(newEvent);
