@@ -37,8 +37,6 @@ public class EventService{
     private MatchService matchService;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private EventCategoryOwnerRepository eventCategoryOwnerRepository;
 
     public List<EventDTO> getAll(HttpServletRequest request){
         List<Event> eventsList = repository.findAll(Sort.by(Sort.Direction.DESC,"eventStartTime"));
@@ -150,11 +148,5 @@ public class EventService{
         if(constraintEvent.size() >= 1){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"name and datetime is already booked");
         }
-    }
-
-    public User getUserFromRequest(HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
-        return  userRepository.findByEmail(userEmail);
     }
 }
