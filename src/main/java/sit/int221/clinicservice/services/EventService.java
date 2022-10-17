@@ -54,9 +54,13 @@ public class EventService{
 
     public Event save(CreateEventDTO createEventDTO, HttpServletRequest httpServletRequest) {
         Event newEvent = modelMapper.map(createEventDTO, Event.class);
-        if ((httpServletRequest.isUserInRole("ROLE_student"))) {
-            createEventDTO.setBookingEmail(getEmailFromToken(httpServletRequest));
-        } else if ((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
+        if (httpServletRequest.isUserInRole("ROLE_student")) {
+            String getUserEmail = getEmailFromToken(httpServletRequest);
+            if(getUserEmail != createEventDTO.getBookingEmail()){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The booking email must be the same as the student's email");
+            }
+        }
+        if ((httpServletRequest.isUserInRole("ROLE_lecturer"))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can create event");
         }
         checkConstraints(newEvent.getBookingName(),newEvent.getEventStartTime());
