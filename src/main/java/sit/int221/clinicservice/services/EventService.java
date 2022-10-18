@@ -56,7 +56,8 @@ public class EventService{
         Event newEvent = modelMapper.map(createEventDTO, Event.class);
         if (httpServletRequest.isUserInRole("ROLE_student")) {
             String getUserEmail = getEmailFromToken(httpServletRequest);
-            if(getUserEmail != createEventDTO.getBookingEmail()){
+            User user = userRepository.findByEmail(getUserEmail);
+            if((httpServletRequest.isUserInRole("ROLE_student")) && !newEvent.getBookingEmail().equals(user.getEmail())){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The booking email must be the same as the student's email");
             }
         }
