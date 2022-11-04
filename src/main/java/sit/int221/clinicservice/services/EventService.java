@@ -13,15 +13,16 @@ import sit.int221.clinicservice.dtos.EventDTO;
 import sit.int221.clinicservice.entities.Event;
 import sit.int221.clinicservice.entities.EventCategory;
 import sit.int221.clinicservice.entities.User;
-import sit.int221.clinicservice.repositories.EventCategoryOwnerRepository;
 import sit.int221.clinicservice.repositories.EventCategoryRepository;
 import sit.int221.clinicservice.repositories.EventRepository;
 import sit.int221.clinicservice.repositories.UserRepository;
 import sit.int221.clinicservice.tokens.JwtTokenUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class EventService{
@@ -37,6 +38,10 @@ public class EventService{
     private MatchService matchService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private EventCategoryRepository eventCategoryRepository;
 
     public List<EventDTO> getAll(HttpServletRequest request){
         List<Event> eventsList = repository.findAll(Sort.by(Sort.Direction.DESC,"eventStartTime"));
@@ -66,6 +71,28 @@ public class EventService{
         }
         checkConstraints(newEvent.getBookingName(),newEvent.getEventStartTime());
         repository.saveAndFlush(newEvent);
+
+        List<EventCategory> eventCategoryList = eventCategoryRepository.findAll();
+        String eventCategoryName = "";
+        for (int i = 0; i < eventCategoryList.toArray().length; i++) {
+            EventCategory findEvent = eventCategoryList.get(i);
+            if (newEvent.getEventCategory().getId().equals(findEvent.getId())) {
+                newEvent.setEventDuration(findEvent.getEventDuration());
+                eventCategoryName = findEvent.getEventCategoryName();
+            }
+        }
+        long endTimeInInt = newEvent.getEventStartTime().getTime() + (1000L * 60 * newEvent.getEventDuration());
+        Date endTime = new Date(endTimeInInt);
+        // FOR START TIME MAIL FORMAT
+        String startTimePattern = "E MMM dd, yyyy HH:mm";
+        SimpleDateFormat startTimeFormat = new SimpleDateFormat(startTimePattern, Locale.US);
+        // FOR END TIME + TIME ZONE MAIL FORMAT
+        String endTimePattern = "HH:mm (z)";
+        SimpleDateFormat endTimeFormat = new SimpleDateFormat(endTimePattern, Locale.US);
+        // FORMAT ALL DATE
+        String date = startTimeFormat.format(newEvent.getEventStartTime()) + " - " + endTimeFormat.format(endTime);
+        emailService.sent(newEvent.getBookingEmail(), newEvent.getBookingName(), eventCategoryName, date, newEvent.getEventNotes());
+
         return repository.saveAndFlush(newEvent);
     }
 

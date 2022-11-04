@@ -62,7 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .anonymous().principal("guest").authorities("ROLE_guest").and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/login","/api/users/signup","/api/eventCategory").permitAll()
+                .authorizeRequests().antMatchers("/api/login","/api/users/signup","/api/eventCategory", "/api/subscriptions").permitAll()
                 .antMatchers("/api/users/**","/api/match/**").hasRole("admin")
                 .antMatchers(HttpMethod.GET, "/api/events","/api/events/{id}").hasAnyRole("admin","student","lecturer")
                 .antMatchers(HttpMethod.POST, "/api/events").permitAll()
